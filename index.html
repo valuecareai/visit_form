@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방문진료 의뢰서</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background: #f0f4f8;
+      color: #1a1a2e;
+      padding: 16px;
+      font-size: 15px;
+    }
+
+    .form-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+
+    .form-header {
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      color: #fff;
+      padding: 28px 24px 20px;
+      text-align: center;
+    }
+    .form-header .org {
+      font-size: 12px;
+      opacity: 0.8;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .form-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    .form-header .sub {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-top: 6px;
+    }
+
+    .form-body {
+      padding: 20px 20px 32px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1565C0;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #E3F2FD;
+    }
+    .section-title .icon {
+      width: 22px; height: 22px;
+      background: #1565C0;
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+
+    .field-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .field-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .required { color: #E53E3E; font-size: 13px; }
+    .hint { font-size: 11px; color: #94A3B8; font-weight: 400; margin-left: 4px; }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+      color: #1a1a2e;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: #1976D2;
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+    }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* 체크박스 그룹 (전부 체크박스 형태) */
+    .check-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .check-item {
+      position: relative;
+    }
+    .check-item input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+    .check-item label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #475569;
+      background: #fff;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .check-item label:before {
+      content: '';
+      width: 18px; height: 18px;
+      border: 2px solid #CBD5E1;
+      border-radius: 4px;
+      background: #fff;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .check-item input:checked + label {
+      background: #EFF6FF;
+      border-color: #1976D2;
+      color: #1565C0;
+      font-weight: 700;
+    }
+    .check-item input:checked + label:before {
+      background: #1976D2 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat;
+      border-color: #1976D2;
+    }
+
+    /* 등급 그리드 */
+    .grade-group {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    .grade-group .check-item label {
+      justify-content: flex-start;
+      padding: 9px 8px;
+      font-size: 13px;
+    }
+
+    /* 관계 그리드 */
+    .relation-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .relation-group .check-item label {
+      justify-content: flex-start;
+      padding: 9px 12px;
+    }
+
+    /* 서비스 큰 카드 */
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .service-item label {
+      justify-content: center !important;
+      text-align: center;
+      padding: 16px 10px !important;
+      font-size: 15px !important;
+      border-radius: 12px !important;
+    }
+
+    .receipt-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #1565C0;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .notice-box {
+      background: #FFFBEB;
+      border: 1px solid #FCD34D;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #92400E;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .notice-box strong { color: #B45309; }
+
+    .doc-list {
+      list-style: none;
+      padding: 0;
+    }
+    .doc-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 0;
+      font-size: 14px;
+      border-bottom: 1px dashed #E2E8F0;
+      color: #374151;
+    }
+    .doc-list li:last-child { border-bottom: none; }
+    .doc-list li:before {
+      content: '●';
+      color: #1976D2;
+      font-size: 8px;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 24px;
+      font-family: inherit;
+    }
+    .submit-btn:active { opacity: 0.85; }
+
+    #success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+    }
+    #success-screen .check-circle {
+      width: 72px; height: 72px;
+      background: #22C55E;
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+    #success-screen h2 { font-size: 22px; color: #166534; margin-bottom: 8px; }
+    #success-screen p { font-size: 14px; color: #6B7280; line-height: 1.7; }
+
+    @media (max-width: 400px) {
+      .grade-group { grid-template-columns: repeat(3, 1fr); }
+      .row-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="form-header">
+    <div class="org">시흥희망의료복지사회적협동조합_희망의원</div>
+    <h1>방문진료 의뢰서</h1>
+    <div class="sub">재택의료센터 · 방문진료 신청</div>
+  </div>
+
+  <div class="form-body">
+
+    <!-- 접수일자 -->
+    <div class="receipt-badge">
+      📅 접수일자
+      <input type="date" id="receipt-date" style="border:none; background:transparent; font-size:13px; color:#1565C0; font-weight:600; padding:0; flex:1;" />
+    </div>
+
+    <!-- 1. 환자 기본 정보 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">1</div>환자 기본 정보</div>
+
+      <div class="row-2" style="margin-bottom:10px;">
+        <div class="field-card">
+          <div class="field-label">성명 <span class="required">*</span></div>
+          <input type="text" id="name" placeholder="홍길동" />
+        </div>
+        <div class="field-card">
+          <div class="field-label">생년월일 <span class="required">*</span></div>
+          <input type="date" id="birthdate" />
+        </div>
+      </div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">성별 <span class="required">*</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="gender" id="male" value="남" onclick="onlyOne(this,'gender')"><label for="male">남</label></div>
+          <div class="check-item"><input type="checkbox" name="gender" id="female" value="여" onclick="onlyOne(this,'gender')"><label for="female">여</label></div>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field-card">
+          <div class="field-label">만 나이</div>
+          <input type="number" id="age" placeholder="예) 75" min="0" max="120" />
+        </div>
+        <div class="field-card">
+          <div class="field-label">연락처 <span class="required">*</span></div>
+          <input type="tel" id="phone" placeholder="010-0000-0000" />
+        </div>
+      </div>
+
+      <div class="field-card" style="margin-top:10px;">
+        <div class="field-label">주소 <span class="required">*</span></div>
+        <input type="text" id="address" placeholder="시흥시 ○○동 ○○아파트 ○○○호" />
+      </div>
+    </div>
+
+    <!-- 2. 요양 등급 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">2</div>요양 등급</div>
+      <div class="field-card">
+        <div class="field-label">장기요양 인정 등급 <span class="hint">(하나 선택)</span></div>
+        <div class="check-group grade-group">
+          <div class="check-item"><input type="checkbox" name="grade" id="g1" value="1등급" onclick="onlyOne(this,'grade')"><label for="g1">1등급</label></div>
+          <div class="check-item"><input type="checkbox" name="grade" id="g2" value="2등급" onclick="onlyOne(this,'grade')"><label for="g2">2등급</label></div>
+          <div class="check-item"><input type="checkbox" name="grade" id="g3" value="3등급" onclick="onlyOne(this,'grade')"><label for="g3">3등급</label></div>
+          <div class="check-item"><input type="checkbox" name="grade" id="g4" value="4등급" onclick="onlyOne(this,'grade')"><label for="g4">4등급</label></div>
+          <div class="check-item"><input type="checkbox" name="grade" id="g5" value="5등급" onclick="onlyOne(this,'grade')"><label for="g5">5등급</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 자격 구분 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">3</div>자격 구분</div>
+      <div class="field-card">
+        <div class="field-label">해당 항목 선택 <span class="required">*</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="qualify" id="q1" value="기초생활수급"><label for="q1">기초생활수급</label></div>
+          <div class="check-item"><input type="checkbox" name="qualify" id="q2" value="차상위"><label for="q2">차상위</label></div>
+          <div class="check-item"><input type="checkbox" name="qualify" id="q3" value="희귀난치성 중증질환자"><label for="q3">희귀난치성 중증</label></div>
+          <div class="check-item"><input type="checkbox" name="qualify" id="q4" value="건강보험"><label for="q4">건강보험</label></div>
+          <div class="check-item"><input type="checkbox" name="qualify" id="q5" value="의료급여 1종"><label for="q5">의료급여 1종</label></div>
+          <div class="check-item"><input type="checkbox" name="qualify" id="q6" value="의료급여 2종"><label for="q6">의료급여 2종</label></div>
+        </div>
+        <div class="notice-box" style="margin-top:10px;">
+          <strong>※ 의료급여 1·2종 지정병원 유무 확인</strong><br>
+          지정병원 해당 시: 의료급여의뢰서 (선택의료급여기관발부용) 필요
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 의뢰인 / 보호자 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">4</div>의뢰인 및 보호자</div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">의뢰인 - 환자와의 관계 <span class="hint">(하나 선택)</span></div>
+        <div class="check-group relation-group">
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr1" value="본인" onclick="onlyOne(this,'ref-rel')"><label for="rr1">본인</label></div>
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr2" value="배우자" onclick="onlyOne(this,'ref-rel')"><label for="rr2">배우자</label></div>
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr3" value="자녀(아들)" onclick="onlyOne(this,'ref-rel')"><label for="rr3">자녀(아들)</label></div>
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr4" value="자녀(딸)" onclick="onlyOne(this,'ref-rel')"><label for="rr4">자녀(딸)</label></div>
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr5" value="며느리/사위" onclick="onlyOne(this,'ref-rel')"><label for="rr5">며느리/사위</label></div>
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr6" value="형제/자매" onclick="onlyOne(this,'ref-rel')"><label for="rr6">형제/자매</label></div>
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr7" value="기관담당자" onclick="onlyOne(this,'ref-rel')"><label for="rr7">기관담당자</label></div>
+          <div class="check-item"><input type="checkbox" name="ref-rel" id="rr8" value="기타" onclick="onlyOne(this,'ref-rel')"><label for="rr8">기타</label></div>
+        </div>
+        <div class="row-2" style="margin-top:10px;">
+          <input type="text" id="ref-name" placeholder="의뢰인 성명" />
+          <input type="tel" id="ref-phone" placeholder="010-0000-0000" />
+        </div>
+      </div>
+
+      <div class="field-card">
+        <div class="field-label">보호자(주수발자) - 환자와의 관계 <span class="hint">(하나 선택)</span></div>
+        <div class="check-group relation-group">
+          <div class="check-item"><input type="checkbox" name="g-rel" id="gr1" value="배우자" onclick="onlyOne(this,'g-rel')"><label for="gr1">배우자</label></div>
+          <div class="check-item"><input type="checkbox" name="g-rel" id="gr2" value="자녀(아들)" onclick="onlyOne(this,'g-rel')"><label for="gr2">자녀(아들)</label></div>
+          <div class="check-item"><input type="checkbox" name="g-rel" id="gr3" value="자녀(딸)" onclick="onlyOne(this,'g-rel')"><label for="gr3">자녀(딸)</label></div>
+          <div class="check-item"><input type="checkbox" name="g-rel" id="gr4" value="며느리/사위" onclick="onlyOne(this,'g-rel')"><label for="gr4">며느리/사위</label></div>
+          <div class="check-item"><input type="checkbox" name="g-rel" id="gr5" value="형제/자매" onclick="onlyOne(this,'g-rel')"><label for="gr5">형제/자매</label></div>
+          <div class="check-item"><input type="checkbox" name="g-rel" id="gr6" value="요양보호사" onclick="onlyOne(this,'g-rel')"><label for="gr6">요양보호사</label></div>
+          <div class="check-item"><input type="checkbox" name="g-rel" id="gr7" value="기타" onclick="onlyOne(this,'g-rel')"><label for="gr7">기타</label></div>
+        </div>
+        <div class="row-2" style="margin-top:10px;">
+          <input type="text" id="g-name" placeholder="보호자 성명" />
+          <input type="tel" id="g-phone" placeholder="010-0000-0000" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 의뢰 기관 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">5</div>의뢰 기관</div>
+      <div class="field-card">
+        <div class="field-label">의뢰 기관 유형 <span class="hint">(하나 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="org-type" id="ot1" value="본인/가족 직접신청" onclick="onlyOne(this,'org-type')"><label for="ot1">본인/가족 직접신청</label></div>
+          <div class="check-item"><input type="checkbox" name="org-type" id="ot2" value="주민센터" onclick="onlyOne(this,'org-type')"><label for="ot2">주민센터</label></div>
+          <div class="check-item"><input type="checkbox" name="org-type" id="ot3" value="복지관" onclick="onlyOne(this,'org-type')"><label for="ot3">복지관</label></div>
+          <div class="check-item"><input type="checkbox" name="org-type" id="ot4" value="장기요양기관" onclick="onlyOne(this,'org-type')"><label for="ot4">장기요양기관</label></div>
+          <div class="check-item"><input type="checkbox" name="org-type" id="ot5" value="병원/의원" onclick="onlyOne(this,'org-type')"><label for="ot5">병원/의원</label></div>
+          <div class="check-item"><input type="checkbox" name="org-type" id="ot6" value="보건소" onclick="onlyOne(this,'org-type')"><label for="ot6">보건소</label></div>
+          <div class="check-item"><input type="checkbox" name="org-type" id="ot7" value="기타" onclick="onlyOne(this,'org-type')"><label for="ot7">기타</label></div>
+        </div>
+        <div class="row-2" style="margin-top:10px;">
+          <input type="text" id="org-name" placeholder="기관명" />
+          <input type="text" id="org-staff" placeholder="담당자명" />
+        </div>
+        <input type="tel" id="org-phone" placeholder="기관 연락처" style="margin-top:8px;" />
+      </div>
+    </div>
+
+    <!-- 6. 의뢰 사유 및 건강 상태 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">6</div>의뢰 사유 및 건강 상태</div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">주요 질환 <span class="hint">(복수 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="disease" id="d1" value="치매"><label for="d1">치매</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d2" value="뇌졸중(중풍)"><label for="d2">뇌졸중(중풍)</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d3" value="고혈압"><label for="d3">고혈압</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d4" value="당뇨병"><label for="d4">당뇨병</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d5" value="관절염(류마티스)"><label for="d5">관절염</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d6" value="디스크/척추협착증"><label for="d6">디스크/척추</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d7" value="호흡곤란"><label for="d7">호흡곤란</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d8" value="난청"><label for="d8">난청</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d9" value="백내장/녹내장"><label for="d9">백내장/녹내장</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d10" value="골절/낙상"><label for="d10">골절/낙상</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d11" value="암"><label for="d11">암</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d12" value="욕창"><label for="d12">욕창</label></div>
+          <div class="check-item"><input type="checkbox" name="disease" id="d13" value="기타"><label for="d13">기타</label></div>
+        </div>
+        <input type="text" id="disease-etc" placeholder="기타 진단명 직접 입력" style="margin-top:8px;" />
+      </div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">이동 보조 기구 <span class="hint">(복수 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="mobility" id="m1" value="없음"><label for="m1">없음</label></div>
+          <div class="check-item"><input type="checkbox" name="mobility" id="m2" value="지팡이"><label for="m2">지팡이</label></div>
+          <div class="check-item"><input type="checkbox" name="mobility" id="m3" value="보행기"><label for="m3">보행기</label></div>
+          <div class="check-item"><input type="checkbox" name="mobility" id="m4" value="휠체어"><label for="m4">휠체어</label></div>
+          <div class="check-item"><input type="checkbox" name="mobility" id="m5" value="와상(침대생활)"><label for="m5">와상</label></div>
+        </div>
+      </div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">외출 가능 여부 <span class="hint">(하나 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="outing" id="o1" value="가능" onclick="onlyOne(this,'outing')"><label for="o1">가능</label></div>
+          <div class="check-item"><input type="checkbox" name="outing" id="o2" value="부분 가능" onclick="onlyOne(this,'outing')"><label for="o2">부분 가능</label></div>
+          <div class="check-item"><input type="checkbox" name="outing" id="o3" value="불가능" onclick="onlyOne(this,'outing')"><label for="o3">불가능</label></div>
+        </div>
+      </div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">현재 증상 / 상태 <span class="hint">(복수 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm1" value="통증"><label for="sm1">통증</label></div>
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm2" value="식사 어려움"><label for="sm2">식사 어려움</label></div>
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm3" value="수면 장애"><label for="sm3">수면 장애</label></div>
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm4" value="배변/배뇨 곤란"><label for="sm4">배변/배뇨 곤란</label></div>
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm5" value="인지 저하"><label for="sm5">인지 저하</label></div>
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm6" value="호흡 곤란"><label for="sm6">호흡 곤란</label></div>
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm7" value="욕창"><label for="sm7">욕창</label></div>
+          <div class="check-item"><input type="checkbox" name="symptom" id="sm8" value="다약제 복용"><label for="sm8">다약제 복용</label></div>
+        </div>
+      </div>
+
+      <div class="field-card">
+        <div class="field-label">의뢰 사유 상세 기재 <span class="required">*</span></div>
+        <textarea id="reason" placeholder="현재 건강 상태, 주요 증상, 의뢰 경위 등을 자세히 작성해 주세요."></textarea>
+      </div>
+    </div>
+
+    <!-- 7. 의뢰자 요청사항 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">7</div>의뢰자 요청사항</div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">원하는 서비스 <span class="hint">(복수 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="request" id="r1" value="진찰 및 처방"><label for="r1">진찰 및 처방</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r2" value="혈액검사"><label for="r2">혈액검사</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r3" value="상처/욕창 처치"><label for="r3">상처/욕창 처치</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r4" value="주사 치료"><label for="r4">주사 치료</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r5" value="약 처방"><label for="r5">약 처방</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r6" value="재활 운동 지도"><label for="r6">재활 운동 지도</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r7" value="영양 관리 상담"><label for="r7">영양 관리 상담</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r8" value="의료기기 점검"><label for="r8">의료기기 점검</label></div>
+          <div class="check-item"><input type="checkbox" name="request" id="r9" value="기타"><label for="r9">기타</label></div>
+        </div>
+      </div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">방문 가능 요일 <span class="hint">(복수 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="day" id="day1" value="월"><label for="day1">월</label></div>
+          <div class="check-item"><input type="checkbox" name="day" id="day2" value="화"><label for="day2">화</label></div>
+          <div class="check-item"><input type="checkbox" name="day" id="day3" value="수"><label for="day3">수</label></div>
+          <div class="check-item"><input type="checkbox" name="day" id="day4" value="목"><label for="day4">목</label></div>
+          <div class="check-item"><input type="checkbox" name="day" id="day5" value="금"><label for="day5">금</label></div>
+          <div class="check-item"><input type="checkbox" name="day" id="day6" value="토"><label for="day6">토</label></div>
+        </div>
+      </div>
+
+      <div class="field-card" style="margin-bottom:10px;">
+        <div class="field-label">방문 선호 시간대 <span class="hint">(복수 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="time" id="t1" value="오전(9~12시)"><label for="t1">오전 9~12시</label></div>
+          <div class="check-item"><input type="checkbox" name="time" id="t2" value="오후(13~15시)"><label for="t2">오후 13~15시</label></div>
+          <div class="check-item"><input type="checkbox" name="time" id="t3" value="오후(15~17시)"><label for="t3">오후 15~17시</label></div>
+          <div class="check-item"><input type="checkbox" name="time" id="t4" value="무관"><label for="t4">무관</label></div>
+        </div>
+      </div>
+
+      <div class="field-card">
+        <div class="field-label">추가 요청사항</div>
+        <textarea id="extra-request" placeholder="특별히 요청하실 사항이 있으시면 작성해 주세요."></textarea>
+      </div>
+    </div>
+
+    <!-- 8. 필요 조치 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">8</div>필요 조치</div>
+      <div class="field-card">
+        <div class="field-label">신청 서비스 유형 <span class="required">*</span> <span class="hint">(복수 선택)</span></div>
+        <div class="check-group service-grid">
+          <div class="check-item service-item">
+            <input type="checkbox" name="service" id="s1" value="재택의료서비스" />
+            <label for="s1">🏠 재택의료서비스</label>
+          </div>
+          <div class="check-item service-item">
+            <input type="checkbox" name="service" id="s2" value="방문진료" />
+            <label for="s2">🩺 방문진료</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. 구비 서류 -->
+    <div class="section">
+      <div class="section-title"><div class="icon">9</div>구비 서류</div>
+      <div class="field-card">
+        <div class="notice-box">
+          <strong>※ 아래 서류를 방문 전 미리 준비해 주세요</strong>
+        </div>
+        <ul class="doc-list">
+          <li>장기요양인정서</li>
+          <li>신청자 신분증 (현재 주소 기재)</li>
+          <li>최근 약처방전</li>
+          <li>의료급여 대상자: 의료급여의뢰서</li>
+        </ul>
+
+        <div class="field-label" style="margin-top:14px;">서류 준비 현황 <span class="hint">(복수 선택)</span></div>
+        <div class="check-group">
+          <div class="check-item"><input type="checkbox" name="doc" id="dc1" value="장기요양인정서 준비"><label for="dc1">장기요양인정서</label></div>
+          <div class="check-item"><input type="checkbox" name="doc" id="dc2" value="신분증 준비"><label for="dc2">신분증</label></div>
+          <div class="check-item"><input type="checkbox" name="doc" id="dc3" value="약처방전 준비"><label for="dc3">약처방전</label></div>
+          <div class="check-item"><input type="checkbox" name="doc" id="dc4" value="의료급여의뢰서 준비"><label for="dc4">의료급여의뢰서</label></div>
+          <div class="check-item"><input type="checkbox" name="doc" id="dc5" value="안내 요청"><label for="dc5">안내 요청</label></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitForm()">의뢰서 제출하기 →</button>
+
+  </div>
+
+  <div id="success-screen">
+    <div class="check-circle">✓</div>
+    <h2>의뢰서가 접수되었습니다</h2>
+    <p style="margin-top:12px;">
+      담당자 확인 후 빠른 시일 내에<br>연락드리겠습니다.<br><br>
+      <strong>시흥희망의료복지사회적협동조합</strong><br>희망의원 재택의료센터
+    </p>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('receipt-date').valueAsDate = new Date();
+
+  // 단일 선택 동작 (체크박스 형태지만 라디오처럼 하나만 선택)
+  function onlyOne(target, groupName) {
+    if (target.checked) {
+      document.querySelectorAll('input[name="' + groupName + '"]').forEach(el => {
+        if (el !== target) el.checked = false;
+      });
+    }
+  }
+
+  function submitForm() {
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const gender = document.querySelector('input[name="gender"]:checked');
+    const service = document.querySelector('input[name="service"]:checked');
+
+    if (!name) { alert('성명을 입력해주세요.'); return; }
+    if (!gender) { alert('성별을 선택해주세요.'); return; }
+    if (!phone) { alert('연락처를 입력해주세요.'); return; }
+    if (!address) { alert('주소를 입력해주세요.'); return; }
+    if (!service) { alert('신청 서비스 유형(필요 조치)을 선택해주세요.'); return; }
+
+    document.querySelector('.form-body').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
